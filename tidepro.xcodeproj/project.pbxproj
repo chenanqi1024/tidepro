@@ -6,13 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2A3C7FD62FD1D13C00622EB7 /* AGENTS.md in Resources */ = {isa = PBXBuildFile; fileRef = 2A3C7FD52FD1D13200622EB7 /* AGENTS.md */; };
+		2A3C7FDC2FD1D23700622EB7 /* SPEC.md in Resources */ = {isa = PBXBuildFile; fileRef = 2A3C7FDB2FD1D22C00622EB7 /* SPEC.md */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		2A3C7FBA2FD1CD7B00622EB7 /* tidepro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tidepro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2A3C7FD52FD1D13200622EB7 /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
+		2A3C7FDB2FD1D22C00622EB7 /* SPEC.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = SPEC.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2A3C7FC92FD1CDB100622EB7 /* Exceptions for "tidepro" folder in "tidepro" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 2A3C7FB92FD1CD7B00622EB7 /* tidepro */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2A3C7FBC2FD1CD7B00622EB7 /* tidepro */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2A3C7FC92FD1CDB100622EB7 /* Exceptions for "tidepro" folder in "tidepro" target */,
+			);
 			path = tidepro;
 			sourceTree = "<group>";
 		};
@@ -32,6 +52,8 @@
 		2A3C7FB12FD1CD7B00622EB7 = {
 			isa = PBXGroup;
 			children = (
+				2A3C7FDB2FD1D22C00622EB7 /* SPEC.md */,
+				2A3C7FD52FD1D13200622EB7 /* AGENTS.md */,
 				2A3C7FBC2FD1CD7B00622EB7 /* tidepro */,
 				2A3C7FBB2FD1CD7B00622EB7 /* Products */,
 			);
@@ -109,6 +131,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A3C7FDC2FD1D23700622EB7 /* SPEC.md in Resources */,
+				2A3C7FD62FD1D13C00622EB7 /* AGENTS.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,11 +277,14 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = tidepro/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "潮汐pro";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -284,11 +311,14 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = tidepro/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "潮汐pro";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
