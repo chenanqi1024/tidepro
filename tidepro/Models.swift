@@ -62,5 +62,7 @@ struct MeditationItem: Identifiable, Hashable {
     let id: String
     let title: String
     let subtitle: String
+    let systemImage: String
+    let minutes: Int
     let paragraphs: [String]
 }

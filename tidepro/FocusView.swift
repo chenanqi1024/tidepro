@@ -44,6 +44,15 @@ final class FocusTimerController: ObservableObject {
 
     private var timer: Timer?
 
+    var totalSeconds: Int {
+        stage == .focus ? mode.focusDuration : mode.restDuration
+    }
+
+    var progress: Double {
+        guard totalSeconds > 0 else { return 0 }
+        return 1 - Double(remainingSeconds) / Double(totalSeconds)
+    }
+
     func start(sound: SoundItem?, audioManager: AudioManager) {
         guard !isRunning else { return }
         isRunning = true
@@ -158,21 +167,29 @@ struct FocusView: View {
 
     private var content: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                DreamHeader(title: "专注", subtitle: "用节奏、背景声和边界感，守住一段完整心流。")
+            VStack(spacing: 0) {
+                DreamHeader(
+                    title: "专注",
+                    subtitle: "用节奏和背景声，守住一段完整心流。",
+                    systemImage: "scope"
+                )
 
-                timerPanel
-                    .padding(.horizontal)
-
-                soundPanel
-                    .padding(.horizontal)
-                    .padding(.bottom, 28)
+                VStack(spacing: 16) {
+                    timerPanel
+                    soundPanel
+                }
+                .padding(16)
+                .frame(maxWidth: 680)
+                .frame(maxWidth: .infinity)
             }
+            .padding(.bottom, 28)
         }
     }
 
     private var timerPanel: some View {
         VStack(spacing: 22) {
+            SectionLabel(title: "番茄钟", detail: timer.mode.rawValue, systemImage: "timer")
+
             Picker("番茄钟模式", selection: $timer.mode) {
                 ForEach(FocusMode.allCases) { mode in
                     Text(mode.rawValue).tag(mode)
@@ -180,28 +197,46 @@ struct FocusView: View {
             }
             .pickerStyle(.segmented)
 
+            ZStack {
+                Circle()
+                    .stroke(AppTheme.border.opacity(0.72), lineWidth: 12)
+
+                Circle()
+                    .trim(from: 0, to: max(0.012, timer.progress))
+                    .stroke(
+                        timer.stage == .focus ? AppTheme.ocean : AppTheme.mint,
+                        style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut(duration: 0.35), value: timer.progress)
+
+                VStack(spacing: 8) {
+                    Text(timer.stage.rawValue)
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(timer.stage == .focus ? AppTheme.ocean : AppTheme.mint)
+
+                    Text(formattedTime(timer.remainingSeconds))
+                        .font(.system(size: 46, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(AppTheme.ink)
+                        .minimumScaleFactor(0.70)
+                }
+            }
+            .frame(width: 220, height: 220)
+
             Toggle(isOn: $immersionMode) {
-                Label("沉浸模式", systemImage: "lock.fill")
-                    .font(.headline)
-                    .foregroundStyle(AppTheme.ink)
+                VStack(alignment: .leading, spacing: 3) {
+                    Label("沉浸模式", systemImage: "lock.fill")
+                        .font(.headline)
+                        .foregroundStyle(AppTheme.ink)
+                    Text("专注期间离开 App 将结束本次计时")
+                        .font(.caption)
+                        .foregroundStyle(AppTheme.secondaryText)
+                }
             }
-            .tint(AppTheme.lavender)
+            .tint(AppTheme.ocean)
 
-            VStack(spacing: 10) {
-                Text(timer.stage.rawValue)
-                    .font(.headline)
-                    .foregroundStyle(timer.stage == .focus ? AppTheme.lavender : AppTheme.mint)
-
-                Text(formattedTime(timer.remainingSeconds))
-                    .font(.system(size: 64, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(AppTheme.ink)
-                    .minimumScaleFactor(0.72)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 ControlButton(
                     timer.isRunning ? "暂停" : "开始",
                     systemImage: timer.isRunning ? "pause.fill" : "play.fill"
@@ -221,9 +256,11 @@ struct FocusView: View {
 
     private var soundPanel: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Label("背景音", systemImage: "waveform")
-                .font(.headline)
-                .foregroundStyle(AppTheme.ink)
+            SectionLabel(
+                title: "背景音",
+                detail: selectedSound?.name ?? "未选择",
+                systemImage: "waveform"
+            )
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 14) {
@@ -236,12 +273,22 @@ struct FocusView: View {
                                     .frame(width: 72, height: 72)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                            .stroke(selectedSound == sound ? AppTheme.lavender : .clear, lineWidth: 3)
+                                            .stroke(selectedSound == sound ? AppTheme.ocean : .clear, lineWidth: 3)
                                     )
+                                    .overlay(alignment: .topTrailing) {
+                                        if selectedSound == sound {
+                                            Image(systemName: "checkmark")
+                                                .font(.caption.bold())
+                                                .foregroundStyle(.white)
+                                                .frame(width: 24, height: 24)
+                                                .background(AppTheme.ocean, in: Circle())
+                                                .offset(x: 5, y: -5)
+                                        }
+                                    }
 
                                 Text(sound.name)
                                     .font(.caption)
-                                    .foregroundStyle(AppTheme.ink)
+                                    .foregroundStyle(selectedSound == sound ? AppTheme.ink : AppTheme.secondaryText)
                                     .lineLimit(1)
                                     .frame(width: 78)
                             }

@@ -34,7 +34,9 @@ struct ContentView: View {
                     Label("冥想", systemImage: "sparkles")
                 }
         }
-        .tint(AppTheme.lavender)
+        .tint(AppTheme.ocean)
+        .toolbarBackground(AppTheme.surface, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
         .environmentObject(soundStore)
         .environmentObject(audioManager)
         .environmentObject(sleepTimer)

@@ -6,19 +6,41 @@
 import SwiftUI
 
 enum AppTheme {
-    static let lavender = Color(red: 0.55, green: 0.36, blue: 0.96)
-    static let lavenderSoft = Color(red: 0.77, green: 0.71, blue: 0.99)
-    static let mint = Color(red: 0.06, green: 0.73, blue: 0.51)
-    static let ink = Color(red: 0.18, green: 0.10, blue: 0.38)
-    static let paper = Color(red: 0.98, green: 0.96, blue: 1.0)
-    static let rose = Color(red: 1.0, green: 0.72, blue: 0.78)
+    static let ocean = Color(red: 0.08, green: 0.52, blue: 0.61)
+    static let indigo = Color(red: 0.32, green: 0.37, blue: 0.78)
+    static let mint = Color(red: 0.16, green: 0.69, blue: 0.57)
+    static let coral = Color(red: 0.94, green: 0.48, blue: 0.42)
+    static let gold = Color(red: 0.95, green: 0.67, blue: 0.28)
+    static let ink = Color(red: 0.08, green: 0.14, blue: 0.22)
+    static let secondaryText = Color(red: 0.34, green: 0.40, blue: 0.48)
+    static let canvas = Color(red: 0.96, green: 0.98, blue: 0.99)
+    static let surface = Color.white.opacity(0.94)
+    static let border = Color(red: 0.84, green: 0.89, blue: 0.92)
+
+    // Kept for existing playback and timer logic.
+    static let lavender = indigo
+    static let lavenderSoft = indigo.opacity(0.28)
+    static let paper = canvas
+    static let rose = coral
 
     static var background: LinearGradient {
         LinearGradient(
             colors: [
-                Color(red: 0.98, green: 0.96, blue: 1.0),
-                Color(red: 0.91, green: 0.96, blue: 1.0),
-                Color(red: 0.93, green: 0.89, blue: 1.0)
+                canvas,
+                Color(red: 0.92, green: 0.98, blue: 0.98),
+                Color(red: 0.95, green: 0.96, blue: 1.0)
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+
+    static var heroGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color(red: 0.05, green: 0.20, blue: 0.29),
+                ocean,
+                indigo
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -28,9 +50,9 @@ enum AppTheme {
     static var dreamOverlay: LinearGradient {
         LinearGradient(
             colors: [
-                lavender.opacity(0.82),
-                Color(red: 0.28, green: 0.40, blue: 0.85).opacity(0.62),
-                mint.opacity(0.54)
+                ink.opacity(0.18),
+                ocean.opacity(0.18),
+                indigo.opacity(0.60)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -43,30 +65,42 @@ extension View {
         background(AppTheme.background.ignoresSafeArea())
     }
 
-    func glassPanel(cornerRadius: CGFloat = 24) -> some View {
-        padding()
-            .background(.white.opacity(0.62), in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+    func surfacePanel(cornerRadius: CGFloat = 20) -> some View {
+        background(AppTheme.surface, in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(.white.opacity(0.78), lineWidth: 1)
+                    .stroke(AppTheme.border.opacity(0.78), lineWidth: 1)
             )
-            .shadow(color: AppTheme.lavender.opacity(0.14), radius: 20, x: 0, y: 12)
+            .shadow(color: AppTheme.ink.opacity(0.07), radius: 18, x: 0, y: 8)
+    }
+
+    func glassPanel(cornerRadius: CGFloat = 20) -> some View {
+        padding(18)
+            .surfacePanel(cornerRadius: cornerRadius)
     }
 
     func primaryCapsule() -> some View {
         font(.headline)
+            .lineLimit(1)
+            .minimumScaleFactor(0.78)
             .foregroundStyle(.white)
-            .padding(.horizontal, 22)
-            .padding(.vertical, 13)
-            .background(AppTheme.lavender, in: Capsule())
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .padding(.horizontal, 14)
+            .background(AppTheme.heroGradient, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .shadow(color: AppTheme.ocean.opacity(0.20), radius: 12, x: 0, y: 7)
     }
 
     func secondaryCapsule() -> some View {
         font(.headline)
+            .lineLimit(1)
+            .minimumScaleFactor(0.78)
             .foregroundStyle(AppTheme.ink)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(.white.opacity(0.75), in: Capsule())
-            .overlay(Capsule().stroke(AppTheme.lavenderSoft.opacity(0.8), lineWidth: 1))
+            .frame(maxWidth: .infinity, minHeight: 50)
+            .padding(.horizontal, 12)
+            .background(AppTheme.surface, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 15, style: .continuous)
+                    .stroke(AppTheme.border, lineWidth: 1)
+            )
     }
 }

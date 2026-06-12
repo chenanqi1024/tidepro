@@ -123,37 +123,61 @@ struct BreatheView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 20) {
-                    DreamHeader(title: "呼吸", subtitle: "跟着缓慢的节奏，把注意力放回身体。")
+                VStack(spacing: 0) {
+                    DreamHeader(
+                        title: "呼吸",
+                        subtitle: "跟着缓慢的节奏，把注意力放回身体。",
+                        systemImage: "wind"
+                    )
 
-                    ForEach(exercises) { exercise in
-                        NavigationLink(value: exercise) {
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Text(exercise.title)
-                                        .font(.title3.bold())
-                                    Spacer()
+                    VStack(alignment: .leading, spacing: 14) {
+                        SectionLabel(title: "选择节奏", detail: "\(exercises.count) 种练习", systemImage: "lungs.fill")
+
+                        ForEach(exercises) { exercise in
+                            NavigationLink(value: exercise) {
+                                HStack(spacing: 15) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                            .fill(exercise.accentGradient)
+                                        Image(systemName: exercise.systemImage)
+                                            .font(.system(size: 25, weight: .semibold))
+                                            .foregroundStyle(.white)
+                                    }
+                                    .frame(width: 64, height: 72)
+
+                                    VStack(alignment: .leading, spacing: 7) {
+                                        Text(exercise.title)
+                                            .font(.headline)
+                                            .foregroundStyle(AppTheme.ink)
+                                        Text(exercise.subtitle)
+                                            .font(.subheadline)
+                                            .foregroundStyle(AppTheme.secondaryText)
+                                            .lineLimit(2)
+
+                                        Text(exercise.phaseSummary)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(AppTheme.ocean)
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
                                     Image(systemName: "chevron.right")
-                                        .font(.subheadline.weight(.semibold))
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(AppTheme.secondaryText.opacity(0.72))
                                 }
-                                .foregroundStyle(AppTheme.ink)
-
-                                Text(exercise.subtitle)
-                                    .font(.subheadline)
-                                    .foregroundStyle(AppTheme.ink.opacity(0.68))
-                                    .multilineTextAlignment(.leading)
+                                .padding(14)
+                                .surfacePanel()
                             }
-                            .glassPanel()
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
                     }
+                    .padding(16)
+                    .frame(maxWidth: 680)
+                    .frame(maxWidth: .infinity)
                 }
                 .padding(.bottom, 28)
             }
             .dreamBackground()
-            .navigationTitle("呼吸")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: BreathingExercise.self) { exercise in
                 BreathingTrainingView(exercise: exercise)
             }
@@ -169,68 +193,121 @@ struct BreathingTrainingView: View {
     }
 
     var body: some View {
-        VStack(spacing: 30) {
-            Spacer(minLength: 12)
-
-            VStack(spacing: 8) {
-                Text(trainer.exercise.title)
-                    .font(.title.bold())
-                    .foregroundStyle(AppTheme.ink)
-                Text(trainer.currentPhase.kind.rawValue)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(AppTheme.lavender)
-            }
-
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [AppTheme.lavender.opacity(0.76), AppTheme.mint.opacity(0.62)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .shadow(color: AppTheme.lavender.opacity(0.26), radius: 24, x: 0, y: 16)
-                    .scaleEffect(trainer.circleScale)
-                    .animation(.easeInOut(duration: 1), value: trainer.circleScale)
-
-                Text("\(trainer.remainingSeconds)")
-                    .font(.system(size: 58, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .monospacedDigit()
-            }
-            .frame(width: 220, height: 220)
-
-            VStack(spacing: 8) {
-                Text("本次训练已进行")
-                    .font(.subheadline)
-                    .foregroundStyle(AppTheme.ink.opacity(0.64))
-                Text(formattedTime(trainer.elapsedSeconds))
-                    .font(.system(size: 34, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(AppTheme.ink)
-            }
-            .glassPanel()
-            .padding(.horizontal)
-
-            HStack(spacing: 12) {
-                ControlButton(
-                    trainer.isRunning ? "暂停" : "开始",
-                    systemImage: trainer.isRunning ? "pause.fill" : "play.fill"
-                ) {
-                    trainer.isRunning ? trainer.pause() : trainer.start()
+        ScrollView {
+            VStack(spacing: 22) {
+                VStack(spacing: 7) {
+                    Text(trainer.exercise.title)
+                        .font(.system(size: 30, weight: .bold, design: .rounded))
+                        .foregroundStyle(AppTheme.ink)
+                    Text(trainer.exercise.subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(AppTheme.secondaryText)
+                        .multilineTextAlignment(.center)
                 }
 
-                ControlButton("结束", systemImage: "stop.fill", isProminent: false) {
-                    trainer.finish()
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(trainer.exercise.phases.enumerated()), id: \.offset) { index, phase in
+                            Text("\(phase.kind.rawValue) \(phase.duration)")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(index == trainer.phaseIndex ? .white : AppTheme.secondaryText)
+                                .padding(.horizontal, 11)
+                                .frame(minHeight: 32)
+                                .background(
+                                    index == trainer.phaseIndex ? AppTheme.ocean : AppTheme.surface,
+                                    in: Capsule()
+                                )
+                        }
+                    }
+                }
+
+                ZStack {
+                    Circle()
+                        .stroke(AppTheme.border.opacity(0.70), lineWidth: 1)
+                        .frame(width: 238, height: 238)
+
+                    Circle()
+                        .fill(trainer.exercise.accentGradient)
+                        .shadow(color: AppTheme.ocean.opacity(0.22), radius: 24, x: 0, y: 14)
+                        .scaleEffect(trainer.circleScale)
+                        .animation(.easeInOut(duration: 1), value: trainer.circleScale)
+
+                    VStack(spacing: 4) {
+                        Text(trainer.currentPhase.kind.rawValue)
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(.white.opacity(0.86))
+                        Text("\(trainer.remainingSeconds)")
+                            .font(.system(size: 56, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .monospacedDigit()
+                    }
+                }
+                .frame(width: 220, height: 220)
+
+                HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("本次训练")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(AppTheme.secondaryText)
+                        Text(formattedTime(trainer.elapsedSeconds))
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(AppTheme.ink)
+                    }
+                    Spacer()
+                    Image(systemName: "waveform.path.ecg")
+                        .font(.system(size: 28))
+                        .foregroundStyle(AppTheme.ocean)
+                }
+                .glassPanel()
+
+                HStack(spacing: 10) {
+                    ControlButton(
+                        trainer.isRunning ? "暂停" : "开始",
+                        systemImage: trainer.isRunning ? "pause.fill" : "play.fill"
+                    ) {
+                        trainer.isRunning ? trainer.pause() : trainer.start()
+                    }
+
+                    ControlButton("结束", systemImage: "stop.fill", isProminent: false) {
+                        trainer.finish()
+                    }
                 }
             }
-
-            Spacer(minLength: 24)
+            .padding(16)
+            .frame(maxWidth: 620)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 28)
         }
-        .padding(.horizontal)
         .dreamBackground()
+        .toolbar(.visible, for: .navigationBar)
         .navigationTitle("训练")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private extension BreathingExercise {
+    var systemImage: String {
+        switch id {
+        case "box": return "square.grid.2x2.fill"
+        case "sleep": return "moon.fill"
+        default: return "heart.fill"
+        }
+    }
+
+    var accentColors: [Color] {
+        switch id {
+        case "box": return [AppTheme.ocean, AppTheme.indigo]
+        case "sleep": return [AppTheme.indigo, AppTheme.coral]
+        default: return [AppTheme.mint, AppTheme.ocean]
+        }
+    }
+
+    var accentGradient: LinearGradient {
+        LinearGradient(colors: accentColors, startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    var phaseSummary: String {
+        phases.map { "\($0.kind.rawValue.prefix(1)) \($0.duration)" }.joined(separator: "  ·  ")
     }
 }

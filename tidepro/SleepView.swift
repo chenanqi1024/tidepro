@@ -9,8 +9,8 @@ struct SleepView: View {
     @EnvironmentObject private var soundStore: SoundLibraryStore
 
     private let columns = [
-        GridItem(.flexible(), spacing: 16),
-        GridItem(.flexible(), spacing: 16)
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
     ]
 
     var body: some View {
@@ -25,8 +25,7 @@ struct SleepView: View {
                 }
             )
             .dreamBackground()
-            .navigationTitle("睡眠")
-            .navigationBarTitleDisplayMode(.inline)
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: SoundItem.self) { sound in
                 SleepPlayerView(sound: sound)
             }
@@ -35,20 +34,30 @@ struct SleepView: View {
 
     private var content: some View {
         ScrollView {
-            VStack(spacing: 20) {
-                DreamHeader(title: "睡眠", subtitle: "选一段柔软的白噪音，让夜晚慢慢安静下来。")
+            VStack(spacing: 0) {
+                DreamHeader(
+                    title: "睡眠",
+                    subtitle: "选一段柔软的声音，让夜晚慢慢安静下来。",
+                    systemImage: "moon.stars.fill"
+                )
 
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(soundStore.sounds) { sound in
-                        NavigationLink(value: sound) {
-                            SoundGridCard(sound: sound)
+                VStack(alignment: .leading, spacing: 14) {
+                    SectionLabel(title: "环境声音", detail: "\(soundStore.sounds.count) 种", systemImage: "waveform")
+
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(soundStore.sounds) { sound in
+                            NavigationLink(value: sound) {
+                                SoundGridCard(sound: sound)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 24)
+                .padding(16)
+                .frame(maxWidth: 720)
+                .frame(maxWidth: .infinity)
             }
+            .padding(.bottom, 28)
         }
     }
 }
@@ -68,60 +77,100 @@ struct SleepPlayerView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 24) {
-                SquareCoverView(sound: sound, cornerRadius: 32)
-                    .overlay(AppTheme.dreamOverlay.opacity(0.22))
-                    .padding(.horizontal)
-                    .padding(.top, 12)
+            VStack(spacing: 20) {
+                SquareCoverView(sound: sound, cornerRadius: 24)
+                    .overlay {
+                        LinearGradient(
+                            colors: [.clear, AppTheme.ink.opacity(0.46)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    }
+                    .overlay(alignment: .bottomLeading) {
+                        Label(isPlayingThisSound ? "正在播放" : "准备播放", systemImage: "waveform")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 11)
+                            .frame(minHeight: 30)
+                            .background(.ultraThinMaterial, in: Capsule())
+                            .padding(14)
+                    }
+                    .frame(maxWidth: 420)
+                    .shadow(color: AppTheme.ink.opacity(0.18), radius: 20, x: 0, y: 12)
 
-                VStack(spacing: 12) {
-                    Text(sound.name)
-                        .font(.system(size: 30, weight: .bold, design: .rounded))
-                        .foregroundStyle(AppTheme.ink)
-                        .multilineTextAlignment(.center)
+                VStack(spacing: 16) {
+                    VStack(spacing: 6) {
+                        Text(sound.name)
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(AppTheme.ink)
+                            .multilineTextAlignment(.center)
 
-                    ControlButton(
-                        isPlayingThisSound ? "暂停" : "播放",
-                        systemImage: isPlayingThisSound ? "pause.fill" : "play.fill"
+                        Text("循环播放 · 切换页面后仍会继续")
+                            .font(.subheadline)
+                            .foregroundStyle(AppTheme.secondaryText)
+                            .multilineTextAlignment(.center)
+                    }
+
+                    RoundControlButton(
+                        systemImage: isPlayingThisSound ? "pause.fill" : "play.fill",
+                        accessibilityLabel: isPlayingThisSound ? "暂停" : "播放"
                     ) {
                         audioManager.toggle(sound, context: .sleep, loop: true)
                     }
                 }
                 .glassPanel()
-                .padding(.horizontal)
 
                 timerPanel
-                    .padding(.horizontal)
-                    .padding(.bottom, 28)
             }
+            .padding(16)
+            .frame(maxWidth: 620)
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 28)
         }
         .dreamBackground()
-        .navigationTitle("播放")
+        .toolbar(.visible, for: .navigationBar)
+        .navigationTitle("睡眠播放")
         .navigationBarTitleDisplayMode(.inline)
     }
 
     private var timerPanel: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Label("睡眠定时", systemImage: "alarm.fill")
-                .font(.headline)
-                .foregroundStyle(AppTheme.ink)
+            SectionLabel(title: "睡眠定时", detail: "按醒来时间", systemImage: "alarm.fill")
 
-            DatePicker("醒来时间", selection: $wakeTime, displayedComponents: .hourAndMinute)
-                .datePickerStyle(.compact)
-                .tint(AppTheme.lavender)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("醒来时间")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppTheme.secondaryText)
 
-            if sleepTimer.isCountingDown {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("剩余时间")
-                        .font(.subheadline)
-                        .foregroundStyle(AppTheme.ink.opacity(0.64))
-                    Text(formattedTime(sleepTimer.remainingSeconds))
-                        .font(.system(size: 38, weight: .bold, design: .rounded))
-                        .foregroundStyle(AppTheme.lavender)
-                }
+                DatePicker("醒来时间", selection: $wakeTime, displayedComponents: .hourAndMinute)
+                    .labelsHidden()
+                    .datePickerStyle(.compact)
+                    .tint(AppTheme.ocean)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            HStack(spacing: 12) {
+            if sleepTimer.isCountingDown {
+                HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("距离醒来还有")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(AppTheme.secondaryText)
+                        Text(formattedTime(sleepTimer.remainingSeconds))
+                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(AppTheme.ocean)
+                            .minimumScaleFactor(0.72)
+                    }
+                    Spacer()
+                    Image(systemName: "moon.zzz.fill")
+                        .font(.system(size: 28))
+                        .foregroundStyle(AppTheme.indigo)
+                }
+                .padding(14)
+                .background(AppTheme.canvas, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+
+            HStack(spacing: 10) {
                 ControlButton(
                     sleepTimer.isCountingDown ? "重新开始" : "开始倒计时",
                     systemImage: "timer"
